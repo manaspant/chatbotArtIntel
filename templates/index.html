@@ -1,0 +1,124 @@
+<!DOCTYPE html><html>
+<head>
+   <meta charset="utf-8">
+    <title>Meets Emoticon</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>   
+    <script type=text/javascript>
+//var $SCRIPT_ROOT = '{{request.script_root|tojson|safe}}';
+var emoticons=[];
+var emoticon='';
+</script>
+<script type=text/javascript>
+$(function() {
+    function submit_form(e) {
+        console.log("Submit Form triggered!");
+
+        var textString = $('input[id="input"]').val();
+
+        var theRequest = $.ajax({
+          url: '/add?a=' + textString,
+          type: 'GET'
+        });
+        theRequest.done(function(data){
+          console.log("WooHoo");
+          console.log(data);
+          $("#print-data").text(data);
+        });
+
+        // $.getJSON('/add', {   
+        //     //a: $('input[id="input"]').val()
+        //     a: "this is a test"
+        // }, 
+        // function(data) {
+        //     emoticon=data.result;
+        //     emoticons.push(data.result);
+        //     // $('#result').text(data.result);
+        //     console.log(emoticons);
+        // });
+
+    };
+
+   
+    $('#emo').bind('click', submit_form);
+});
+</script>
+    
+  
+    <style> html,body {padding: 0; margin: 0;} #canvas {position:relative top:0; left:0 ;vertical-align: top; z-index:-5;} #mycanvas {position:absolute top:0 left:0vertical-align: top; z-index:-5;} #button,#emo{position:absolute ;top:82%; left:82%;margin:auto ;text-align: center; }
+     #text {}</style>
+
+  </head>
+  <body>
+    <p id="print-data"></p>
+    
+    <div id="canvas"></div>
+    
+<!--     <p id='button'><input type="button"  id="emo" value="emoticon it!"></p>
+ -->
+
+    say something: <input id="input" type="text" name="FirstName"><br>
+<!--     <input id="emo" type="button" value="Submit">
+ -->
+ 
+    <button id="emo">PRESS ME</button>
+
+<!--     <script src="{{url_for('static', filename='sketch.js')}}"></script>
+ -->  </body>    
+    
+  <script>
+    
+
+		var totalText = '';
+		var tempText;
+		var translate=false;//use while loop for translating if translate=-true
+//add something here
+   // var sentence=document.getElementById('sentence');
+   //  loadJSON('vocabulary.json', vocab);
+   //  sentence_array=sentence.split(' ');
+   //  var example=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];//30 wrods maximum
+   //  for (i=0; i<sentence_array.length()-1;i++){
+   //   if (sentence_array[i] in vocab){
+   //      example[i]=result
+   //   }
+   //  }
+   //  print(example);
+   		//sentences.push(sentence);
+
+
+    //one with heart disease
+    // const example1 = tf.tensor([
+    //   example
+    // ])
+    //one with no heart disease
+    
+   // let model;
+    //await inside of async says don't do anything else in this function
+    //until you finish this job, i.e., loading the loadModel
+    //you can do other things outside of the function asynchronously
+    //it will continue when it's ready
+    // async function loadandrun() {
+    //   //load model
+    //   model = await tf.loadModel('model.json');
+    //   //make a prediction once model is loaded
+    //   predict(example1);
+    // }
+
+    // //contains everything to predict
+    // let predict = (example) => {
+    //   //make prediction
+    //   const prediction = model.predict(example);
+    //   //print the tensor holding our class predictions
+    //   prediction.print();
+    //   //get the index of the largest number in that tensor: argMax()
+    //   //bring that from tensorflow to plain js: dataSync()
+    //   //get the first (and only) element in that array: [0]
+    //   const p = prediction.argMax().dataSync()[0];
+    //   console.log("class: " + p);
+    //   setText(p);
+    // }
+      // console.log(pred);//the result
+       //emoticons.push(emoticon);
+    // loadandrun();
+  </script>
+
+</body></html>

@@ -13,8 +13,8 @@ import html
 from utils import TextLoader
 from model import Model
 
-def main():
-    assert sys.version_info >= (3, 3), \
+def main(user_input):
+    assert sys.version_info >= (3, 3)
     "Must be run in Python 3.3 or later. You are running {}".format(sys.version)
     parser = argparse.ArgumentParser()
     parser.add_argument('--save_dir', type=str, default='models/reddit',
@@ -37,37 +37,7 @@ def main():
                        'noticeably degrading coherence;'
                        'set to <0 to disable relevance masking')
     args = parser.parse_args()
-    #sample_main(args)
-    print(args)
-
-
-def generateArgs():
-    assert sys.version_info >= (3, 3), \
-    "Must be run in Python 3.3 or later. You are running {}".format(sys.version)
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--save_dir', type=str, default='models/reddit',
-                       help='model directory to store checkpointed models')
-    parser.add_argument('-n', type=int, default=500,
-                       help='number of characters to sample')
-    parser.add_argument('--prime', type=str, default=' ',
-                       help='prime text')
-    parser.add_argument('--beam_width', type=int, default=2,
-                       help='Width of the beam for beam search, default 2')
-    parser.add_argument('--temperature', type=float, default=1.0,
-                       help='sampling temperature'
-                       '(lower is more conservative, default is 1.0, which is neutral)')
-    parser.add_argument('--topn', type=int, default=-1,
-                        help='at each step, choose from only this many most likely characters;'
-                        'set to <0 to disable top-n filtering.')
-    parser.add_argument('--relevance', type=float, default=-1.,
-                       help='amount of "relevance masking/MMI (disabled by default):"'
-                       'higher is more pressure, 0.4 is probably as high as it can go without'
-                       'noticeably degrading coherence;'
-                       'set to <0 to disable relevance masking')
-    args = parser.parse_args()
-    #sample_main(args)
-    return args
-
+    return sample_main(args, user_input)
 
 
 def get_paths(input_path):
@@ -111,8 +81,7 @@ def sample_main(args, user_input):
         # Restore the saved variables, replacing the initialized values.
         print("Restoring weights...")
         saver.restore(sess, model_path)
-        user_input = input('\n> ')
-        chatbot2(net, sess, chars, vocab, args.n, args.beam_width,
+        return chatbot(net, sess, chars, vocab, args.n, args.beam_width,
                 args.relevance, args.temperature, args.topn, user_input)
 
 def initial_state(net, sess):
@@ -154,32 +123,12 @@ def possibly_escaped_char(raw_chars):
                 return backspace_seq + new_seq + "".join([' '] * diff_length) + "".join(['\b'] * diff_length)
     return raw_chars[-1]
 
-def chatbot(net, sess, chars, vocab, max_length, beam_width, relevance, temperature, topn):
-    states = initial_state_with_relevance_masking(net, sess, relevance)
-    while True:
-        user_input = input('\n> ')
-        user_command_entered, reset, states, relevance, temperature, topn, beam_width = process_user_command(
-            user_input, states, relevance, temperature, topn, beam_width)
-        if reset: states = initial_state_with_relevance_masking(net, sess, relevance)
-        if not user_command_entered:
-            states = forward_text(net, sess, states, relevance, vocab, sanitize_text(vocab, "> " + user_input + "\n>"))
-            computer_response_generator = beam_search_generator(sess=sess, net=net,
-                initial_state=copy.deepcopy(states), initial_sample=vocab[' '],
-                early_term_token=vocab['\n'], beam_width=beam_width, forward_model_fn=forward_with_mask,
-                forward_args={'relevance':relevance, 'mask_reset_token':vocab['\n'], 'forbidden_token':vocab['>'],
-                                'temperature':temperature, 'topn':topn})
-            out_chars = []
-            for i, char_token in enumerate(computer_response_generator):
-                out_chars.append(chars[char_token])
-                print(possibly_escaped_char(out_chars), end='', flush=True)
-                states = forward_text(net, sess, states, relevance, vocab, chars[char_token])
-                if i >= max_length: break
-            states = forward_text(net, sess, states, relevance, vocab, sanitize_text(vocab, "\n> "))
-
-def chatbot2(net, sess, chars, vocab, max_length, beam_width, relevance, temperature, topn, user_input):
+def chatbot(net, sess, chars, vocab, max_length, beam_width, relevance, temperature, topn, user_input):
     states = initial_state_with_relevance_masking(net, sess, relevance)
 
     #user_input = input('\n> ')
+    out_chars = []
+
     user_command_entered, reset, states, relevance, temperature, topn, beam_width = process_user_command(
         user_input, states, relevance, temperature, topn, beam_width)
     if reset: states = initial_state_with_relevance_masking(net, sess, relevance)
@@ -190,13 +139,14 @@ def chatbot2(net, sess, chars, vocab, max_length, beam_width, relevance, tempera
             early_term_token=vocab['\n'], beam_width=beam_width, forward_model_fn=forward_with_mask,
             forward_args={'relevance':relevance, 'mask_reset_token':vocab['\n'], 'forbidden_token':vocab['>'],
                             'temperature':temperature, 'topn':topn})
-        out_chars = []
         for i, char_token in enumerate(computer_response_generator):
             out_chars.append(chars[char_token])
             print(possibly_escaped_char(out_chars), end='', flush=True)
             states = forward_text(net, sess, states, relevance, vocab, chars[char_token])
             if i >= max_length: break
         states = forward_text(net, sess, states, relevance, vocab, sanitize_text(vocab, "\n> "))
+    return out_chars
+
 
 def process_user_command(user_input, states, relevance, temperature, topn, beam_width):
     user_command_entered = False
@@ -377,6 +327,3 @@ def beam_search_generator(sess, net, initial_state, initial_sample,
 
 if __name__ == '__main__':
     main()
-
-
-
