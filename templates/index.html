@@ -28,8 +28,13 @@ $(function() {
     });
     theRequest.done(function(data){
       console.log("WooHoo");
-      console.log(data);
-      $("#print-data").text("AccioBOT: "+data);
+      console.log(typeof(data));
+      var words = data.split(" ");
+      var cleanData = words.slice(0,20);
+      var cleanerData = cleanData.join();
+      console.log("Cleaner data!!",cleanerData);
+
+      $("#print-data").text("AccioBOT: "+data+".");
       $("#emo1").show();
     });
   }
@@ -63,13 +68,12 @@ $("emo").click(function(){
   </p>
   <p>
     <h3 style="text-align: center;">
-      Type something in the input box and find out what the bot has to respond to that. Typically takes a minute to respond. 
+      <br>
+      Hi, I'm Acciobot! <br> I talk like students do on the Room of Requirements.<br> Go ahead and type something in the input box and find out what I have to say.<br> Just be patient, because I typically take my time (less than a minute) to think and respond. 
     </h3>
   </p>
 
-  <br><br><br><br><br>
-
-    <p id="print-data" style="text-align: center; font-size: 25px;">.....</p>
+  <br>
     
     <div id="canvas"></div>
     
@@ -103,7 +107,9 @@ $("emo").click(function(){
     display: inline-block;
     font-size: 16px;position: relative;
     left: 46.5%;">Accio</button>
-    <br><br><br>
+    <br><br>
+
+    <p id="print-data" style="text-align: center; font-size: 25px;">.....</p><br>
     <button onClick="window.location.reload()" id="emo1" style="    background-color: blue; /* Green */
     border: none;
     color: white;
